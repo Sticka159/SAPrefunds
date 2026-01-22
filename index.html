@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>SAP – Sledování Vratek</title>
+    <link rel="stylesheet" href="styleForSAPR.css">
+    <link rel="icon" href="http://192.168.114.53/SAP_refunds/source/SAPR-icon.png" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<h1>Vratky</h1>
+
+<form id="vratkaForm">
+    <fieldset>
+        <legend>Nová vratka</legend>
+
+        <label for="MaterialNum">Č. materiálu:</label>
+        <input type="text" id="MaterialNum" name="MaterialNum" required><br>
+
+        <label for="amount">Množství:</label>
+        <input type="number" id="amount" name="amount" min="1" required><br>
+
+        <input type="hidden" id="type" name="type" value="europaleta">
+
+        <label for="target">Středisko:</label>
+        <select id="target" name="target">
+            <option value="" disabled selected hidden>Vyberte středisko:</option>
+            <option value="1236">1236</option>
+            <option value="231">231</option>
+            <option value="232">232</option>
+            <option value="233">233</option>
+            <option value="234">234</option>
+            <option value="2341">2341</option>
+            <option value="2342">2342</option>
+            <option value="2343">2343</option>
+            <option value="2344">2344</option>
+            <option value="2345">2345</option>
+            <option value="23451">23451</option>
+            <option value="2346">2346</option>
+            <option value="2347">2347</option>
+            <option value="2348">2348</option>
+            <option value="235">235</option>
+            <option value="236">236</option>
+            <option value="237">237</option>
+            <option value="239">239</option>
+            <option value="240">240</option>
+            <option value="241">241</option>
+            <option value="242">242</option>
+            <option value="251">251</option>
+            <option value="260">260</option>
+            <option value="265">265</option>
+            <option value="266">266</option>
+            <option value="273">273</option>
+            <option value="290_M15">290_M15</option>
+            <option value="290_M29">290_M29</option>
+            <option value="290_M43">290_M43</option>
+            <option value="292">292</option>
+            <option value="310">310</option>
+            <option value="311">311</option>
+            <option value="330">330</option>
+            <option value="341">341</option>
+            <option value="350_1">350_1</option>
+            <option value="350_2">350_2</option>
+            <option value="360_1">360_1</option>
+            <option value="360_2">360_2</option>
+            <option value="360_4">360_4</option>
+            <option value="390">390</option>
+            <option value="BM">BM</option>
+            <option value="BW_CLASSIC">BW_CLASSIC</option>
+            <option value="COMBI">COMBI</option>
+            <option value="CON">CON</option>
+            <option value="DISPO">DISPO</option>
+            <option value="DUSTER">DUSTER</option>
+            <option value="DUSTER_K">DUSTER_K</option>
+            <option value="ERGO MOP">ERGO MOP</option>
+            <option value="FAZ">FAZ</option>
+            <option value="LIS">LIS</option>
+            <option value="LOGISTIKA">LOGISTIKA</option>
+            <option value="LSPL">LSPL</option>
+            <option value="LST">LST</option>
+            <option value="MICH">MICH</option>
+            <option value="MICH5">MICH5</option>
+            <option value="OBR">OBR</option>
+            <option value="PG01K">PG01K</option>
+            <option value="PG02K">PG02K</option>
+            <option value="PLATA">PLATA</option>
+            <option value="PWRCLN">PWRCLN</option>
+            <option value="QS">QS</option>
+            <option value="RAST">RAST</option>
+            <option value="RASTR">RASTR</option>
+            <option value="RB">RB</option>
+            <option value="RUM">RUM</option>
+            <option value="SEK">SEK</option>
+            <option value="SORTBAU">SORTBAU</option>
+            <option value="SVAR">SVAR</option>
+            <option value="TWISTERGO">TWISTERGO</option>
+            <option value="WIT">WIT</option>
+        </select><br>
+
+        <label for="reason">Důvod:</label>
+        <select id="reason" name="reason">
+            <option value="" disabled selected hidden>Vyberte důvod:</option>
+            <option value="QS">Blokace - QS</option>
+            <option value="QS - paint">QS-výroba → lakovna</option>
+            <option value="QS - injection molding">QS-výroba → vstřikolisy</option>
+            <option value="reconstruction of production">Přestavba výroby</option>
+            <option value="Warehouse error">Chyba skladu</option>
+        </select><br>
+
+        <button type="submit">Založit vratku</button>
+    </fieldset>
+</form>
+
+<hr>
+
+<h2>Seznam vratek</h2>
+
+<div class="filter-buttons">
+    <button id="filterActive" class="active">Aktivní</button>
+    <button id="filterHistory">Historie</button>
+    <button id="Graphs">Přehled</button>
+</div>
+
+<section>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Čip (OČ)</th>
+            <th>Materiál</th>
+            <th>Množství</th>
+            <th>Typ balení</th>
+            <th>Středisko</th>
+            <th>Důvod</th>
+            <th>Datum změny</th>
+            <th>Vytvořeno</th>
+            <th>Stav</th>
+        </tr>
+        </thead>
+        <tbody id="vratkyTable">
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <div id="graphContainer" style="display:none;">
+        <h2>Počet vratek podle střediska za posledních 10 dní</h2>
+        <div style="width:65%; height:40%; margin:0 auto;">
+            <canvas id="refundChart"></canvas>
+        </div>
+    </div>
+
+</section>
+
+<script type="module" src="scriptForSAPR.js"></script>
+</body>
+</html>
